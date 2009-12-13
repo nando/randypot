@@ -1,0 +1,50 @@
+== Randypot ==
+  Randypot is a Ruby client for Kandypot (the most sweet of the karma services ever)
+
+== Randypot wannabe tour ==
+
+  Configuration is a good start. We can do it this way:
+
+    Randypot.configure do |config|
+      config.service_url = "http://kandypot.com/api"
+      config.api_key     = "putyourapikeyhere"
+      config.api_token   = "andhereputthetoken"
+    end
+
+  Then we can make calls like this to the service:
+
+    Randypot.creation.photo(
+      :ugc    => true,
+      :member => 'wadus@example.com',
+      :permalink => 'http://example.com/wadus.jpg'
+    )
+
+  But also we can get an instance for a member:
+
+    randy = Randypot.new(
+      :ugc    => false, 
+      :member => 'randy@example.com')
+  
+  And then say the same like this:
+
+    randy.creates.photo 'http://example.com/wadus.jpg'
+
+  Finally we can make the configuration thing and the member instance in the same step:
+
+    randy = Randypot.new('randy@example.com') do |config|
+      config.service_url = "http://kandypot.com/api"
+      config.api_key     = "putyourapikeyhere"
+      config.api_token   = "andhereputthetoken"
+    end
+
+  And then start playing with randy's pot :)
+
+== Comming soon: reactions ==
+
+    #  - if :creator key is not present then content_source will be "editorial"
+    randy.reaction.favourite(:permalink => 'http://example.com/sitepage')
+    #  - otherwise content_source will be "ugc"
+    randy.reaction.comment(
+      :creator   => 'wadus@example.com',
+      :permalink => 'http://example.com/waduspage')
+      
