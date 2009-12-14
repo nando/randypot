@@ -1,17 +1,37 @@
 == Randypot ==
-  Randypot is a Ruby client for Kandypot (the most sweet of the karma services ever)
+  Randypot is a Ruby client for Kandypot (the sweetest karma service ever deployed)
 
 == Randypot wannabe tour ==
 
-  Configuration is a good start. We can do it this way:
+  Configuration is a good way to start the tour. It can be set in a YAML with a content like this:
+  
+    kandypot_server:
+      service_url: http://kandypot.com/api
+      app_key: putyourappkeyhere
+      app_token: andhereputthetoken
+
+  Randypot will look for this YAML in all of this files:
+    1.- /etc/randypot/configuration.yml,
+    2.- ~/.randypot/configuration.yml (will override any setting loaded by /etc/randypot YAML),
+    3.- randypot.yml (in the current directory, will override any setting loaded by previous YAMLs).
+
+  Also we can pass to Randypot the location of the configuration file the doing something like this:
+
+    Randypot.configure '/my/special/place.yml'
+
+  This will override any setting of the automagically loaded YAMLs.
+
+  If we don't want to have it in a YAML we can also do the same with:
 
     Randypot.configure do |config|
       config.service_url = "http://kandypot.com/api"
-      config.api_key     = "putyourapikeyhere"
-      config.api_token   = "andhereputthetoken"
+      config.app_key     = "putyourappkeyhere"
+      config.app_token   = "andhereputthetoken"
     end
 
-  Then we can make calls like this to the service:
+  Again, this settings will be used spite of setting loaded from any YAML file.
+
+  Once the configuration is set we can make calls like this to the service:
 
     Randypot.creation.photo(
       :ugc    => true,
@@ -33,8 +53,8 @@
 
     randy = Randypot.new('randy@example.com') do |config|
       config.service_url = "http://kandypot.com/api"
-      config.api_key     = "putyourapikeyhere"
-      config.api_token   = "andhereputthetoken"
+      config.app_key     = "putyourappkeyhere"
+      config.app_token   = "andhereputthetoken"
     end
 
   And then start playing with randy's pot :)
@@ -42,9 +62,9 @@
 == Comming soon: reactions ==
 
     #  - if :creator key is not present then content_source will be "editorial"
-    randy.reaction.favourite(:permalink => 'http://example.com/sitepage')
+    randy.reacts.favourite(:permalink => 'http://example.com/sitepage')
     #  - otherwise content_source will be "ugc"
-    randy.reaction.comment(
+    randy.reacts.comment(
       :creator   => 'wadus@example.com',
       :permalink => 'http://example.com/waduspage')
       

@@ -2,8 +2,8 @@ require 'randypot/version'
 require 'randypot/config'
 
 class Randypot
-  def initialize(&block)
-    Randypot.configure &block
+  def initialize(config_file = nil, &block)
+    Randypot.configure config_file, &block
   end
 
   class << self
@@ -11,8 +11,8 @@ class Randypot
       @config ||= Config.new
     end
     
-    def configure(&block)
-      config.configure &block
+    def configure(config_file = nil, &block)
+      config.configure config_file, &block
     end
   end
 end

@@ -1,7 +1,9 @@
 == 0.0.1 2009-12-13
 
+(will be)
 * 1 major enhancement:
   * Configuration gear
+  * Content creation call with Randypot.creation
 
 * 1 minor enhancement:
   * Library roadmap started at README

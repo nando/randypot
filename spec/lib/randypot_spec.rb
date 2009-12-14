@@ -12,10 +12,20 @@ describe Randypot do
     end
   end
   
-  it ".new should let us configure de .config object as well" do
+  it ".new should let us configure the .config object as well" do
     Randypot.config.should_receive(:foo).with(:bar)
     Randypot.new do |c|
       c.foo :bar
     end
+  end
+
+  it ".configure should use the given YAML" do
+    Randypot.config.should_receive(:configure).with('myconf.yml')
+    Randypot.new 'myconf.yml'
+  end
+
+  it ".new should use the given YAML" do
+    Randypot.config.should_receive(:configure).with('myconf.yml')
+    Randypot.new 'myconf.yml'
   end
 end

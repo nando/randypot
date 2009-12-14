@@ -1,42 +1,148 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper'))
 
 describe Randypot::Config do
-  before do
-    @config = Randypot::Config.new
+  EXPECTED_VALUES = {
+    :service_url => 'bad urls should raise an exception',
+    :app_key =>   'MY_KEY',
+    :app_token => 'MY_TOKEN'
+  }
+
+  Spec::Matchers.define :have_the_expected_values do
+    match do |config|
+      config.service_url.should == EXPECTED_VALUES[:service_url]
+      config.app_key.should == EXPECTED_VALUES[:app_key]
+      config.app_token.should == EXPECTED_VALUES[:app_token]
+    end
   end
-  
+
   it "#service_url should default to 'http://garden.kandypot.com/api'" do
-    @config.service_url.should == 'http://garden.kandypot.com/api'
+    config = Randypot::Config.new
+    config.service_url.should == 'http://garden.kandypot.com/api'
   end
 
-  describe "setting through accesors" do
-    before  do
-      @config.service_url = 'bad urls should raise an exception'
-      @config.app_key = 'KEY'
-      @config.app_token = 'TOKEN'
-    end
-
-    it "should be posible" do
-      @config.service_url.should == 'bad urls should raise an exception'
-      @config.app_key.should == 'KEY'
-      @config.app_token.should == 'TOKEN'
-    end
+  it "should be possible to set it through accesors" do
+    config = Randypot::Config.new
+    config.service_url = EXPECTED_VALUES[:service_url]
+    config.app_key = EXPECTED_VALUES[:app_key]
+    config.app_token = EXPECTED_VALUES[:app_token]
+    config.should have_the_expected_values
   end
 
-  describe "setting through #configure" do
-    before  do
-      @config.configure do |c|
-        c.service_url = 'bad urls should raise an exception'
-        c.app_key = 'KEY'
-        c.app_token = 'TOKEN'
-      end
+  it "should be possible to set it through #configure" do
+    config = Randypot::Config.new
+    config.configure do |c|
+      c.service_url = EXPECTED_VALUES[:service_url]
+      c.app_key = EXPECTED_VALUES[:app_key]
+      c.app_token = EXPECTED_VALUES[:app_token]
     end
-
-    it "should be posible" do
-      @config.service_url.should == 'bad urls should raise an exception'
-      @config.app_key.should == 'KEY'
-      @config.app_token.should == 'TOKEN'
-    end
+    config.should have_the_expected_values
   end
   
+  describe "setting through a YAML" do
+    before  do
+      @yaml_content = <<CONFIG_YAML
+  kandypot_server:
+    service_url: #{EXPECTED_VALUES[:service_url]}
+    app_key: #{EXPECTED_VALUES[:app_key]}
+    app_token: #{EXPECTED_VALUES[:app_token]}
+CONFIG_YAML
+    end
+
+    it "should be loaded from a given file" do
+      File.should_receive(:read).with('cfg.yml').and_return(@yaml_content)
+      config = Randypot::Config.new
+      config.configure 'cfg.yml'
+      config.should have_the_expected_values
+    end
+
+    it "should be automagically loaded from /etc/randypot/configuration.yml" do
+      mock_files(
+        '/etc/randypot/configuration.yml' => @yaml_content,
+        '~/.randypot/configuration.yml'   => nil,
+        'randypot.yml'                    => nil)
+      config = Randypot::Config.new
+      config.should have_the_expected_values
+    end
+
+    it "should be automagically loaded from ~/.randypot/configuration.yml" do
+      mock_files(
+        '/etc/randypot/configuration.yml' => nil,
+        '~/.randypot/configuration.yml' => @yaml_content,
+        'randypot.yml' => nil)
+      config = Randypot::Config.new
+      config.should have_the_expected_values
+    end
+
+    it "should be automagically loaded from randypot.yml" do
+      mock_files(
+        '/etc/randypot/configuration.yml' => nil,
+        '~/.randypot/configuration.yml' => nil,
+        'randypot.yml' => @yaml_content)
+      config = Randypot::Config.new
+      config.should have_the_expected_values
+    end
+  end
+
+  describe "priority of the different setting methods:" do
+    before  do
+      @yaml_overriden = <<CONFIG_YAML
+  kandypot_server:
+    service_url: overriden-setting
+    app_key: #{EXPECTED_VALUES[:app_key]}
+    app_token: #{EXPECTED_VALUES[:app_token]}
+CONFIG_YAML
+      @yaml_overrider = <<CONFIG_YAML
+  kandypot_server:
+    service_url: #{EXPECTED_VALUES[:service_url]}
+CONFIG_YAML
+    end
+
+    it "~/.randypot should override /etc/randypot" do
+      mock_files(
+        '/etc/randypot/configuration.yml' => @yaml_overriden,
+        '~/.randypot/configuration.yml' => @yaml_overrider,
+        'randypot.yml' => nil)
+      config = Randypot::Config.new
+      config.should have_the_expected_values
+    end
+
+    it "randypot.yml should override ~/.randypot/configuration.yml" do
+      mock_files(
+        '/etc/randypot/configuration.yml' => nil,
+        '~/.randypot/configuration.yml' => @yaml_overriden,
+        'randypot.yml' => @yaml_overrider)
+      config = Randypot::Config.new
+      config.should have_the_expected_values
+    end
+
+    it "User YAML should override randypot.yml" do
+      mock_files(
+        '/etc/randypot/configuration.yml' => nil,
+        '~/.randypot/configuration.yml' => nil,
+        'randypot.yml' => @yaml_overriden)
+      File.should_receive(:read).with('config.yml').and_return(@yaml_overrider)
+      config = Randypot::Config.new
+      config.configure 'config.yml'
+      config.should have_the_expected_values
+    end
+
+    it "#configure should override randypot.yml" do
+      mock_files(
+        '/etc/randypot/configuration.yml' => nil,
+        '~/.randypot/configuration.yml' => nil,
+        'randypot.yml' => @yaml_overriden)
+      config = Randypot::Config.new
+      config.configure do |conf|
+        conf.service_url = EXPECTED_VALUES[:service_url]
+      end
+      config.should have_the_expected_values
+    end
+  end
+
+  def mock_files(files={})
+    files.each do |file, content|
+      File.should_receive(:file?).with(file).and_return(!content.nil?)
+      File.should_receive(:read).with(file).and_return(content) if content
+    end
+  end
 end
