@@ -1,5 +1,6 @@
 require 'randypot/version'
 require 'randypot/config'
+require 'randypot/magic_params'
 
 class Randypot
   def initialize(config_file = nil, &block)
