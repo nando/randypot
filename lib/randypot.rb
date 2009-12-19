@@ -2,6 +2,7 @@ require 'randypot/version'
 require 'randypot/config'
 require 'randypot/connection'
 require 'randypot/magic_params'
+require 'randypot/params_transformer'
 
 class Randypot
   def initialize(config_file = nil, &block)
