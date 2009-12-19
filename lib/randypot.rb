@@ -1,5 +1,6 @@
 require 'randypot/version'
 require 'randypot/config'
+require 'randypot/connection'
 require 'randypot/magic_params'
 
 class Randypot
