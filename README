@@ -31,33 +31,28 @@
 
   Again, this settings will be used spite of setting loaded from any YAML file.
 
-  Once the configuration is set we can make calls like this to the service:
+  Once the configuration is set we can make calls like this to the service (option one):
 
-    Randypot.creation.photo(
-      :ugc    => true,
+    Randypot.creation.photo.ugc(
       :member => 'wadus@example.com',
       :permalink => 'http://example.com/wadus.jpg'
     )
 
-  But also we can get an instance for a member:
+  But also we can get an instance for a member (option two):
 
-    randy = Randypot.new(
-      :ugc    => false, 
-      :member => 'randy@example.com')
+    randy = Randypot.new(:ugc => true, :member => 'randy@example.com')
   
-  And then say the same like this:
+  To do just the same but like this:
 
     randy.creates.photo 'http://example.com/wadus.jpg'
 
-  Finally we can make the configuration thing and the member instance in the same step:
+  Or we can create an instance of 'randy' passing only his email (option three):
 
-    randy = Randypot.new('randy@example.com') do |config|
-      config.service_url = "http://kandypot.com/api"
-      config.app_key     = "putyourappkeyhere"
-      config.app_token   = "andhereputthetoken"
-    end
+    randy = Randypot.new('randy@example.com')
 
-  And then start playing with randy's pot :)
+  And again do just the same with this even more fancy syntax:
+
+    randy.creates.photo.ugc 'http://example.com/wadus.jpg'
 
 == Comming soon: reactions ==
 
