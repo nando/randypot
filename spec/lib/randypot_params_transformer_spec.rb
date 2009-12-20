@@ -19,35 +19,34 @@ describe Randypot::ParamsTransformer, '.transform' do
   end
 
   it 'should translate "creator" to "member_b_token" and MDFive its value' do
-    params = {
-      :creator => 'this should be an email'
-    }
+    params = { :creator => 'this should be an email' }
     Randypot::ParamsTransformer.transform(params).should == {
-      :member_b_token => Digest::MD5.hexdigest(params[:creator])
-    }
+      :member_b_token => Digest::MD5.hexdigest(params[:creator])}
+  end
+
+  it 'should translate "permalink" to "content_token" and MDFive its value' do
+    params = { :permalink => 'this should be a URL' }
+    Randypot::ParamsTransformer.transform(params).should == {
+      :content_token => Digest::MD5.hexdigest(params[:permalink])}
   end
 
   it 'should replace :ugc => true for :content_source => "ugc"' do
     Randypot::ParamsTransformer.transform(:ugc => true).should == {
-      :content_source => 'ugc'
-    }
+      :content_source => 'ugc'}
   end
 
   it 'should replace :ugc => false for :content_source => "editorial"' do
     Randypot::ParamsTransformer.transform(:ugc => false).should == {
-      :content_source => 'editorial'
-    }
+      :content_source => 'editorial'}
   end
 
   it 'should replace :editorial => true for :content_source => "editorial"' do
     Randypot::ParamsTransformer.transform(:editorial => true).should == {
-      :content_source => 'editorial'
-    }
+      :content_source => 'editorial'}
   end
 
   it 'should replace :editorial => false for :content_source => "ugc"' do
     Randypot::ParamsTransformer.transform(:editorial => false).should == {
-      :content_source => 'ugc'
-    }
+      :content_source => 'ugc'}
   end
 end

@@ -4,6 +4,7 @@ class Randypot
   class ParamsTransformer
     TRANSFORMATIONS_TABLE = {
       :creator                      => :member_b,
+      :permalink                    => :content,
       {:ugc => true}.inspect        => {:content_source => 'ugc'},
       {:ugc => false}.inspect       => {:content_source => 'editorial'},
       {:editorial => true}.inspect  => {:content_source => 'editorial'},
