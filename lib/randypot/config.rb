@@ -6,7 +6,7 @@ class Randypot
       'randypot.yml',
       '~/.randypot/configuration.yml',
       '/etc/randypot/configuration.yml'
-    ].reverse
+    ].reverse.map {|f| File.expand_path(f)}
     attr_accessor :service_url, :app_key, :app_token
     
     def initialize

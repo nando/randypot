@@ -6,6 +6,11 @@ describe Randypot::Config do
     :app_key =>   'MY_KEY',
     :app_token => 'MY_TOKEN'
   }
+  YAMLS = {
+    :current_directory => 'randypot.yml',
+    :home_directory => '~/.randypot/configuration.yml',
+    :etc_directory => '/etc/randypot/configuration.yml'
+  }.inject({}) {|h, kv| h.merge(kv[0] => File.expand_path(kv[1]))}
 
   Spec::Matchers.define :have_the_expected_values do
     match do |config|
@@ -57,27 +62,27 @@ CONFIG_YAML
 
     it "should be automagically loaded from /etc/randypot/configuration.yml" do
       mock_files(
-        '/etc/randypot/configuration.yml' => @yaml_content,
-        '~/.randypot/configuration.yml'   => nil,
-        'randypot.yml'                    => nil)
+        YAMLS[:etc_directory] => @yaml_content,
+        YAMLS[:home_directory]   => nil,
+        YAMLS[:current_directory]                    => nil)
       config = Randypot::Config.new
       config.should have_the_expected_values
     end
 
     it "should be automagically loaded from ~/.randypot/configuration.yml" do
       mock_files(
-        '/etc/randypot/configuration.yml' => nil,
-        '~/.randypot/configuration.yml' => @yaml_content,
-        'randypot.yml' => nil)
+        YAMLS[:etc_directory] => nil,
+        YAMLS[:home_directory] => @yaml_content,
+        YAMLS[:current_directory] => nil)
       config = Randypot::Config.new
       config.should have_the_expected_values
     end
 
     it "should be automagically loaded from randypot.yml" do
       mock_files(
-        '/etc/randypot/configuration.yml' => nil,
-        '~/.randypot/configuration.yml' => nil,
-        'randypot.yml' => @yaml_content)
+        YAMLS[:etc_directory] => nil,
+        YAMLS[:home_directory] => nil,
+        YAMLS[:current_directory] => @yaml_content)
       config = Randypot::Config.new
       config.should have_the_expected_values
     end
@@ -99,27 +104,27 @@ CONFIG_YAML
 
     it "~/.randypot should override /etc/randypot" do
       mock_files(
-        '/etc/randypot/configuration.yml' => @yaml_overriden,
-        '~/.randypot/configuration.yml' => @yaml_overrider,
-        'randypot.yml' => nil)
+        YAMLS[:etc_directory] => @yaml_overriden,
+        YAMLS[:home_directory] => @yaml_overrider,
+        YAMLS[:current_directory] => nil)
       config = Randypot::Config.new
       config.should have_the_expected_values
     end
 
     it "randypot.yml should override ~/.randypot/configuration.yml" do
       mock_files(
-        '/etc/randypot/configuration.yml' => nil,
-        '~/.randypot/configuration.yml' => @yaml_overriden,
-        'randypot.yml' => @yaml_overrider)
+        YAMLS[:etc_directory] => nil,
+        YAMLS[:home_directory] => @yaml_overriden,
+        YAMLS[:current_directory] => @yaml_overrider)
       config = Randypot::Config.new
       config.should have_the_expected_values
     end
 
     it "User YAML should override randypot.yml" do
       mock_files(
-        '/etc/randypot/configuration.yml' => nil,
-        '~/.randypot/configuration.yml' => nil,
-        'randypot.yml' => @yaml_overriden)
+        YAMLS[:etc_directory] => nil,
+        YAMLS[:home_directory] => nil,
+        YAMLS[:current_directory] => @yaml_overriden)
       File.should_receive(:read).with('config.yml').and_return(@yaml_overrider)
       config = Randypot::Config.new
       config.configure 'config.yml'
@@ -128,9 +133,9 @@ CONFIG_YAML
 
     it "#configure should override randypot.yml" do
       mock_files(
-        '/etc/randypot/configuration.yml' => nil,
-        '~/.randypot/configuration.yml' => nil,
-        'randypot.yml' => @yaml_overriden)
+        YAMLS[:etc_directory] => nil,
+        YAMLS[:home_directory] => nil,
+        YAMLS[:current_directory] => @yaml_overriden)
       config = Randypot::Config.new
       config.configure do |conf|
         conf.service_url = EXPECTED_VALUES[:service_url]
