@@ -17,16 +17,27 @@ describe Randypot::Connection do
       @client = mock('httpclient', :set_auth => nil)
       HTTPClient.stub!(:new).and_return(@client)
       @connection = Randypot::Connection.new('','','')
+      @client_response = mock('HTTPClient', :status => 201,
+        :contenttype => "application/json; charset=utf-8",
+        :content => "{\"activity\":{\"content_type\":\"item\"}}")
     end
 
-    it '#post should post' do
-      @client.should_receive(:post).with(@url, @params)
-      @connection.post(@url, @params)
+    it '#post should do the post and return a Randypot Response' do
+      @client.should_receive(:post).with(@url, @params).and_return(@client_response)
+      res = @connection.post(@url, @params)
+      res.should be_kind_of(Randypot::Connection::Response)
+      res.status.should == @client_response.status
+      res.body.should == @client_response.content
+      res.content_type.should == @client_response.contenttype
     end
 
-    it '#get should get' do
-      @client.should_receive(:get).with(@url)
-      @connection.get(@url)
+    it '#get should do the get and return a Randypot Response' do
+      @client.should_receive(:get).with(@url).and_return(@client_response)
+      res = @connection.get(@url)
+      res.should be_kind_of(Randypot::Connection::Response)
+      res.status.should == @client_response.status
+      res.body.should == @client_response.content
+      res.content_type.should == @client_response.contenttype
     end
   end
 end
