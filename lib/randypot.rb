@@ -26,19 +26,25 @@ class Randypot
     end
 
     def creation(base_params = nil)
-      MagicParams.abracadabra(
-       [:content_type, :content_source], 
-       base_params) do |params|
-        params[:activity_type] = 'creation'
-        params[:activity_at] = Time.now
-        connection.post activities_url, ParamsTransformer.transform(params)
-      end
+      activity 'creation', base_params, [:content_type, :content_source]
+    end
+
+    def reaction(base_params = nil)
+      activity 'reaction', base_params, [:category, :content_type, :content_source]
     end
 
     private
     def connection
       @connection ||= Connection.new(
         config.service_url, config.app_key, config.app_token)
+    end
+
+    def activity(type, base_params, magic_keys)
+      MagicParams.abracadabra(magic_keys, base_params) do |params|
+        params[:activity_type] = type
+        params[:activity_at] = Time.now
+        connection.post activities_url, ParamsTransformer.transform(params)
+      end
     end
   end
 end
