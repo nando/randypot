@@ -7,6 +7,8 @@ require 'randypot/connection'
 require 'randypot/magic_params'
 require 'randypot/params_transformer'
 
+require 'tmpdir'
+
 class Randypot
   def initialize(config_file = nil, &block)
     Randypot.configure config_file, &block
@@ -25,6 +27,10 @@ class Randypot
       config.service_url + '/activities/'
     end
 
+    def members_url
+      config.service_url + '/members/'
+    end
+
     def creation(base_params = nil)
       activity 'creation', base_params, [:content_type, :content_source]
     end
@@ -37,6 +43,15 @@ class Randypot
       activity 'relationship', base_params, :category
     end
 
+    def members(base_params = nil)
+      headers = if File.file?(Dir.tmpdir + '/randypot/members_cache')
+        # extract the etag
+      else
+        {}
+      end
+      connection.get members_url, nil, headers
+    end
+    
     private
     def connection
       @connection ||= Connection.new(

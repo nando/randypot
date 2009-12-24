@@ -5,10 +5,16 @@ describe Randypot do
     Randypot.config.should == Randypot.config
   end
 
+  # Randypot.activities_url
   it 'should build the url for posting new activities using config.service_url' do
-    Randypot.should_receive(:config).and_return(
-      mock('config', :service_url => 'http://...'))
-    Randypot.activities_url.should == 'http://.../activities/'
+    Randypot.should_receive(:config).and_return(mock('cfg', :service_url => ''))
+    Randypot.activities_url.should == '/activities/'
+  end
+
+  # Randypot.members_url
+  it 'should build the url to get member kandies using config.service_url' do
+    Randypot.should_receive(:config).and_return(mock('cfg', :service_url => ''))
+    Randypot.members_url.should == '/members/'
   end
     
   describe 'configuration methods' do
@@ -125,6 +131,27 @@ describe Randypot do
       it 'should pass its first nested method as :category' do
         Randypot.relationship.love(:member_b => @base_params[:member_b])
       end
+    end
+  end
+
+  describe '.members' do
+    before do
+      @response_body = <<MEMBERS_RESPONSE
+0318254ce7c576c583e8a63558e7f98877e6ec49,12,2009-08-03 20:46:40 UTC
+059fc5c60729cad3bfe07e1a5edaa51104c14518,12,2009-08-03 20:46:40 UTC
+0699d11f05594b85c6004ebba26712a5f9940090,12,2009-08-03 20:46:40 UTC
+0f4d89c1a93ea1b314ec6cad9a07cb743e41953c,13,2009-08-03 20:46:40 UTC
+MEMBERS_RESPONSE
+    end
+
+    it 'should request members_url w/o "If-None-Match" header if no cache is present' do
+      File.should_receive(:file?).with(Dir.tmpdir + '/randypot/members_cache').and_return(false)
+      conn, response, file = mock('connection'), mock('file')
+      Randypot.should_receive(:connection).and_return(conn)
+      conn.should_receive(:get).with(Randypot.members_url, nil, {}).and_return(response)
+#      File.should_receive(:open).with(Dir.tmpdir + '/randypot/members_cache', 'w').and_yield(file)
+#      file.should_receive(:write).with(
+      Randypot.members
     end
   end
 end
