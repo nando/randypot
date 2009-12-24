@@ -41,103 +41,90 @@ describe Randypot do
    end
   end
 
-  describe '.creation' do
-    before do
-      @base_params = {
-        :content => 'http://example.com/wadus.png',
-        :content_type => 'wadus',
-        :content_source => 'ugc'
-      }
+  describe 'new activity' do
+    def set_expectations_for(activity_type, base_params)
+      @base_params = base_params
       conn, now, transformed_params = mock('Connection'), Time.now, {}
       Time.stub!(:now).and_return(now)
       Randypot.should_receive(:connection).and_return(conn)
       Randypot::ParamsTransformer.should_receive(:transform).with(
-        @base_params.merge({
-        :activity_type => 'creation',
+        base_params.merge({
+        :activity_type => activity_type,
         :activity_at => now
       })).and_return(transformed_params)
       conn.should_receive(:post).with(Randypot.activities_url, transformed_params)
     end
 
-    it 'should create from passed params' do
-      Randypot.creation(@base_params)
+    describe '.creation' do
+      before do
+        set_expectations_for 'creation', {
+          :content_type => 'wadus',
+          :content_source => 'ugc',
+          :content => 'http://example.com/wadus.png'
+        }
+      end
+  
+      it 'should create from passed params' do
+        Randypot.creation(@base_params)
+      end
+  
+      it 'should pass its first nested method as :content_type' do
+        Randypot.creation.wadus(@base_params.reject{|k,v| k == :content_type})
+      end
+  
+      it 'should pass its second nested method as :content_source' do
+        Randypot.creation.wadus.ugc(:content => @base_params[:content])
+      end
     end
-
-    it 'should pass its first nested method as :content_type' do
-      Randypot.creation.wadus(@base_params.reject{|k,v| k == :content_type})
+  
+    describe '.reaction' do
+      before do
+        set_expectations_for 'reaction', {
+          :category => 'comment',
+          :content_type => 'wadus',
+          :content_source => 'ugc',
+          :content => 'http://example.com/wadus.png'
+        }
+      end
+  
+      it 'should create from passed params' do
+        Randypot.reaction(@base_params)
+      end
+  
+      it 'should pass its first nested method as :category' do
+        Randypot.reaction.comment(@base_params.reject{|k,v| k == :category})
+      end
+  
+      it 'should pass its second nested method as :content_type' do
+        params = @base_params.reject{|k,v| 
+          [:content_type, :category].include? k
+        }
+        Randypot.reaction.comment.wadus(params)
+      end
+  
+      it 'should pass its third nested method as :content_source' do
+        params = @base_params.reject{|k,v| 
+          [:content_type, :category, :content_source].include? k
+        }
+        Randypot.reaction.comment.wadus.ugc(params)
+      end
     end
-
-    it 'should pass its second nested method as :content_source' do
-      Randypot.creation.wadus.ugc(:content => @base_params[:content])
-    end
-  end
-
-  describe '.reaction' do
-    before do
-      @base_params = {
-        :content => 'http://example.com/wadus.png',
-        :content_type => 'wadus',
-        :content_source => 'ugc',
-        :member_b => 'creator@example.com',
-        :category => 'comment'
-      }
-      conn, now, transformed_params = mock('Connection'), Time.now, {}
-      Time.stub!(:now).and_return(now)
-      Randypot.should_receive(:connection).and_return(conn)
-      Randypot::ParamsTransformer.should_receive(:transform).with(
-        @base_params.merge({
-        :activity_type => 'reaction',
-        :activity_at => now
-      })).and_return(transformed_params)
-      conn.should_receive(:post).with(Randypot.activities_url, transformed_params)
-    end
-
-    it 'should create from passed params' do
-      Randypot.reaction(@base_params)
-    end
-
-    it 'should pass its first nested method as :category' do
-      Randypot.reaction.comment(@base_params.reject{|k,v| k == :category})
-    end
-
-    it 'should pass its second nested method as :content_type' do
-      params = @base_params.reject{|k,v| 
-        [:content_type, :category].include? k
-      }
-      Randypot.reaction.comment.wadus(params)
-    end
-
-    it 'should pass its third nested method as :content_source' do
-      params = @base_params.reject{|k,v| 
-        [:content_type, :category, :content_source].include? k
-      }
-      Randypot.reaction.comment.wadus.ugc(params)
-    end
-  end
-
-  describe '.relationship' do
-    before do
-      @base_params = {
-        :member_b => 'example@example.org',
-        :category => 'love'
-      }
-      conn, now, transformed_params = mock('Connection'), Time.now, {}
-      Time.stub!(:now).and_return(now)
-      Randypot.should_receive(:connection).and_return(conn)
-      Randypot::ParamsTransformer.should_receive(:transform).with(
-        @base_params.merge({
-        :activity_type => 'relationship',
-        :activity_at => now
-      })).and_return(transformed_params)
-      conn.should_receive(:post).with(Randypot.activities_url, transformed_params)
-    end
-
-    it 'should create from passed params' do
-      Randypot.relationship(@base_params)
-    end
-
-    it 'should pass its first nested method as :category' do
-      Randypot.relationship.love(:member_b => @base_params[:member_b])
+  
+    describe '.relationship' do
+      before do
+        set_expectations_for 'relationship', {
+          :category => 'love',
+          :member_b => 'example@example.org'
+        }
+      end
+  
+      it 'should create from passed params' do
+        Randypot.relationship(@base_params)
+      end
+  
+      it 'should pass its first nested method as :category' do
+        Randypot.relationship.love(:member_b => @base_params[:member_b])
+      end
     end
   end
 end
