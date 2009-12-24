@@ -33,6 +33,10 @@ class Randypot
       activity 'reaction', base_params, [:category, :content_type, :content_source]
     end
 
+    def relationship(base_params = nil)
+      activity 'relationship', base_params, :category
+    end
+
     private
     def connection
       @connection ||= Connection.new(

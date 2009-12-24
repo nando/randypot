@@ -114,4 +114,30 @@ describe Randypot do
       Randypot.reaction.comment.wadus.ugc(params)
     end
   end
+
+  describe '.relationship' do
+    before do
+      @base_params = {
+        :member_b => 'example@example.org',
+        :category => 'love'
+      }
+      conn, now, transformed_params = mock('Connection'), Time.now, {}
+      Time.stub!(:now).and_return(now)
+      Randypot.should_receive(:connection).and_return(conn)
+      Randypot::ParamsTransformer.should_receive(:transform).with(
+        @base_params.merge({
+        :activity_type => 'relationship',
+        :activity_at => now
+      })).and_return(transformed_params)
+      conn.should_receive(:post).with(Randypot.activities_url, transformed_params)
+    end
+
+    it 'should create from passed params' do
+      Randypot.relationship(@base_params)
+    end
+
+    it 'should pass its first nested method as :category' do
+      Randypot.relationship.love(:member_b => @base_params[:member_b])
+    end
+  end
 end
