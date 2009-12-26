@@ -6,8 +6,7 @@ require 'randypot/config'
 require 'randypot/connection'
 require 'randypot/magic_params'
 require 'randypot/params_transformer'
-
-require 'tmpdir'
+require 'randypot/cache'
 
 class Randypot
   def initialize(config_file = nil, &block)
@@ -44,14 +43,11 @@ class Randypot
     end
 
     def members(base_params = nil)
-      headers = if File.file?(Dir.tmpdir + '/randypot/members_cache')
-        # extract the etag
-      else
-        {}
-      end
-      connection.get members_url, nil, headers
+      cache = Randypot::Cache.get members_url
+      response = connection.get members_url, cache
+      Randypot::Cache.put members_url, response unless response.not_modified?
     end
-    
+ 
     private
     def connection
       @connection ||= Connection.new(

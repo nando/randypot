@@ -19,7 +19,8 @@ describe Randypot::Connection do
       @connection = Randypot::Connection.new('','','')
       @client_response = mock('HTTPClient', :status => 201,
         :contenttype => "application/json; charset=utf-8",
-        :content => "{\"activity\":{\"content_type\":\"item\"}}")
+        :content => "{\"activity\":{\"content_type\":\"item\"}}",
+        :header => {'etag' => ['254ce7c5']})
     end
 
     it '#post should do the post and return a Randypot Response' do
@@ -29,10 +30,11 @@ describe Randypot::Connection do
       res.status.should == @client_response.status
       res.body.should == @client_response.content
       res.content_type.should == @client_response.contenttype
+      res.etag.should == @client_response.header['etag'][0]
     end
 
     it '#get should do the get and return a Randypot Response' do
-      @client.should_receive(:get).with(@url).and_return(@client_response)
+      @client.should_receive(:get).with(@url, nil, nil).and_return(@client_response)
       res = @connection.get(@url)
       res.should be_kind_of(Randypot::Connection::Response)
       res.status.should == @client_response.status
