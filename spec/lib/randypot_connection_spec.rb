@@ -26,7 +26,7 @@ describe Randypot::Connection do
     it '#post should do the post and return a Randypot Response' do
       @client.should_receive(:post).with(@url, @params).and_return(@client_response)
       res = @connection.post(@url, @params)
-      res.should be_kind_of(Randypot::Connection::Response)
+      res.should be_kind_of(Randypot::Response)
       res.status.should == @client_response.status
       res.body.should == @client_response.content
       res.content_type.should == @client_response.contenttype
@@ -35,7 +35,7 @@ describe Randypot::Connection do
     it '#get should do the get and return a Randypot Response' do
       @client.should_receive(:get).with(@url, nil, nil).and_return(@client_response)
       res = @connection.get(@url)
-      res.should be_kind_of(Randypot::Connection::Response)
+      res.should be_kind_of(Randypot::Response)
       res.status.should == @client_response.status
       res.body.should == @client_response.content
       res.content_type.should == @client_response.contenttype
@@ -47,7 +47,7 @@ describe Randypot::Connection do
       @client.should_receive(:get).with(
         @url, nil, {'If-None-Match' => cache.etag}).and_return(@client_response)
       res = @connection.get(@url, cache)
-      res.should be_kind_of(Randypot::Connection::Response)
+      res.should be_kind_of(Randypot::Response)
       res.status.should == @client_response.status
       res.body.should == @client_response.content
       res.content_type.should == @client_response.contenttype

@@ -3,6 +3,7 @@ $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.expand_path(File.dirname(__FILE__)))
 require 'randypot/version'
 require 'randypot/config'
+require 'randypot/response'
 require 'randypot/connection'
 require 'randypot/magic_params'
 require 'randypot/params_transformer'
