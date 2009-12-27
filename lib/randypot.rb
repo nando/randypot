@@ -31,6 +31,10 @@ class Randypot
       config.service_url + '/members/'
     end
 
+    def member_url(id)
+      config.service_url + '/member/' + Digest::MD5.hexdigest(id)
+    end
+
     def creation(base_params = nil)
       activity 'creation', base_params, [:content_type, :content_source]
     end
@@ -43,10 +47,12 @@ class Randypot
       activity 'relationship', base_params, :category
     end
 
-    def members(base_params = nil)
-      cache = Randypot::Cache.get members_url
-      response = connection.get members_url, cache
-      Randypot::Cache.put members_url, response unless response.not_modified?
+    def members
+      cached_request members_url
+    end
+ 
+    def member(id)
+      cached_request member_url(id)
     end
  
     private
@@ -61,6 +67,12 @@ class Randypot
         params[:activity_at] = Time.now
         connection.post activities_url, ParamsTransformer.transform(params)
       end
+    end
+
+    def cached_request(url)
+      cache = Randypot::Cache.get url
+      response = connection.get url, cache
+      Randypot::Cache.put url, response unless response.not_modified?
     end
   end
 end

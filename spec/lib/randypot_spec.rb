@@ -5,16 +5,25 @@ describe Randypot do
     Randypot.config.should == Randypot.config
   end
 
-  # Randypot.activities_url
-  it 'should build the url for posting new activities using config.service_url' do
-    Randypot.should_receive(:config).and_return(mock('cfg', :service_url => ''))
-    Randypot.activities_url.should == '/activities/'
-  end
-
-  # Randypot.members_url
-  it 'should build the url to get member kandies using config.service_url' do
-    Randypot.should_receive(:config).and_return(mock('cfg', :service_url => ''))
-    Randypot.members_url.should == '/members/'
+  describe '.*_url methods' do
+    before do
+      Randypot.should_receive(:config).and_return(mock('cfg', :service_url => ''))
+    end
+    # Randypot.activities_url
+    it 'should build the url for posting new activities using config.service_url' do
+      Randypot.activities_url.should == '/activities/'
+    end
+  
+    # Randypot.members_url
+    it 'should build the url to get members kandies using config.service_url' do
+      Randypot.members_url.should == '/members/'
+    end
+  
+    # Randypot.member_url(member)
+    it 'should build the url to get a member info from his/her email/id' do
+      Digest::MD5.should_receive(:hexdigest).with('member').and_return('digest')
+      Randypot.member_url('member').should == '/member/digest'
+    end
   end
     
   describe 'configuration methods' do
@@ -150,6 +159,32 @@ describe Randypot do
     it 'should request members_url and cache response if no cache is present' do
       @response.should_receive(:not_modified?).and_return(false)
       Randypot::Cache.should_receive(:put).with(Randypot.members_url, @response)
+    end
+
+    it 'should request members_url and do not cache response if cache is valid' do
+      @response.should_receive(:not_modified?).and_return(true)
+      Randypot::Cache.should_not_receive(:put)
+    end
+  end
+
+  describe '.member' do
+    before do
+      @response = mock('response')
+      cache, conn = mock('cache'), mock('connection')
+      @email = 'member@example.com'
+      @url = Randypot.member_url(@email)
+      Randypot::Cache.should_receive(:get).with(@url).and_return(cache)
+      Randypot.should_receive(:connection).and_return(conn)
+      conn.should_receive(:get).with(@url, cache).and_return(@response)
+    end
+
+    after do
+      Randypot.member @email
+    end
+
+    it 'should request members_url and cache response if no cache is present' do
+      @response.should_receive(:not_modified?).and_return(false)
+      Randypot::Cache.should_receive(:put).with(@url, @response)
     end
 
     it 'should request members_url and do not cache response if cache is valid' do
