@@ -33,7 +33,7 @@ describe Randypot::Connection do
     end
 
     it '#get should do the get and return a Randypot Response' do
-      @client.should_receive(:get).with(@url, nil, nil).and_return(@client_response)
+      @client.should_receive(:get).with(@url, nil, {}).and_return(@client_response)
       res = @connection.get(@url)
       res.should be_kind_of(Randypot::Response)
       res.status.should == @client_response.status

@@ -14,7 +14,8 @@ class Randypot
     end
 
     def get(url, cache = nil)
-      response @client.get(url, nil, cache && {'If-None-Match' => cache.etag})
+      headers = cache ? {'If-None-Match' => cache.etag} : {}
+      response @client.get(url, nil, headers)
     end
 
     private
