@@ -22,7 +22,7 @@ describe Randypot do
     # Randypot.member_url(member)
     it 'should build the url to get a member info from his/her email/id' do
       Digest::MD5.should_receive(:hexdigest).with('member').and_return('digest')
-      Randypot.member_url('member').should == '/member/digest'
+      Randypot.member_url('member').should == '/members/digest'
     end
   end
     

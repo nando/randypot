@@ -32,7 +32,7 @@ class Randypot
     end
 
     def member_url(id)
-      config.service_url + '/member/' + Digest::MD5.hexdigest(id)
+      members_url + Digest::MD5.hexdigest(id)
     end
 
     def creation(base_params = nil)
@@ -70,9 +70,9 @@ class Randypot
     end
 
     def cached_request(url)
-      cache = Randypot::Cache.get url
-      response = connection.get url, cache
-      Randypot::Cache.put url, response unless response.not_modified?
+      cache = Randypot::Cache.get(url)
+      response = connection.get(url, cache)
+      Randypot::Cache.put(url, response) unless response.not_modified?
     end
   end
 end
