@@ -12,12 +12,13 @@ class Randypot
       end
 
       def put(key, object)
+        Dir.mkdir(cache_dir) unless File.directory?(cache_dir)
         File.open(filepath(key), 'w').write(object.to_yaml)
       end
   
       private
       def cache_dir
-        Dir.tmpdir + '/randypot/'
+        @cache_dir ||= Dir.tmpdir + '/randypot/'
       end
   
       def filepath(key)
