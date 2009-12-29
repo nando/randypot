@@ -1,5 +1,7 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper'))
 
+Randypot::Cache.clean
+
 Randypot.configure do |config|
   config.service_url = 'http://localhost.localdomain.lan:3000/api'
   config.app_key = '1' 
@@ -43,6 +45,11 @@ describe Randypot do
     end
   end
   it '.members' do
+    should_return_status(200) do 
+      Randypot.members
+    end
+  end
+  it '.members from cache' do
     should_return_status(200) do 
       Randypot.members
     end

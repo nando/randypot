@@ -72,7 +72,11 @@ class Randypot
     def cached_request(url)
       cache = Randypot::Cache.get(url)
       response = connection.get(url, cache)
-      Randypot::Cache.put(url, response) unless response.not_modified?
+      if response.not_modified?
+        cache
+      else
+        Randypot::Cache.put(url, response)
+      end
     end
   end
 end

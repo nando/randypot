@@ -16,7 +16,7 @@ describe Randypot::Cache do
     it '.get should return Response if cache file does exist' do
       response = mock('response')
       File.should_receive(:file?).with(@filepath).and_return(true)
-      YAML.should_receive(:load).with(@filepath).and_return(response)
+      YAML.should_receive(:load_file).with(@filepath).and_return(response)
       Randypot::Cache.get(@key).should == response
     end
     

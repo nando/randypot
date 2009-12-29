@@ -145,20 +145,20 @@ describe Randypot do
 
   describe '.members' do
     before do
-      @response = mock('response')
-      cache, conn = mock('cache'), mock('connection')
+      @response = mock('response', :status => 200)
+      cache, conn = mock('cache', :status => 200), mock('connection')
       Randypot::Cache.should_receive(:get).with(Randypot.members_url).and_return(cache)
       Randypot.should_receive(:connection).and_return(conn)
       conn.should_receive(:get).with(Randypot.members_url, cache).and_return(@response)
     end
 
     after do
-      Randypot.members
+      Randypot.members.status.should be(200)
     end
 
-    it 'should request members_url and cache response if no cache is present' do
+    it 'should request members_url and cache response if response is new' do
       @response.should_receive(:not_modified?).and_return(false)
-      Randypot::Cache.should_receive(:put).with(Randypot.members_url, @response)
+      Randypot::Cache.should_receive(:put).with(Randypot.members_url, @response).and_return(@response)
     end
 
     it 'should request members_url and do not cache response if cache is valid' do

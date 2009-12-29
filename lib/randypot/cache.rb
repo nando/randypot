@@ -1,13 +1,14 @@
 require 'tmpdir'
 require 'yaml'
 require 'digest/md5'
+require 'fileutils'
 
 class Randypot
   class Cache
     class << self
       def get(key)
         if File.file?(file = filepath(key))
-          YAML.load(file)
+          YAML.load_file file
         end
       end
 
@@ -15,6 +16,10 @@ class Randypot
         Dir.mkdir(cache_dir) unless File.directory?(cache_dir)
         File.open(filepath(key), 'w').write(object.to_yaml)
         object
+      end
+
+      def clean
+        FileUtils.rm_rf cache_dir
       end
   
       private
