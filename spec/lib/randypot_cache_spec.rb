@@ -25,7 +25,7 @@ describe Randypot::Cache do
         File.should_receive(:directory?).with(@dirpath).and_return(false)
         Dir.should_receive(:mkdir).with(@dirpath)
         file, response, res_to_yaml = mock('file'), mock('response'), mock('res_to_yaml')
-        File.should_receive(:open).with(@filepath, 'w').and_return(file)
+        File.should_receive(:open).with(@filepath, 'w').and_yield(file)
         response.should_receive(:to_yaml).and_return(res_to_yaml)
         file.should_receive(:write).with(res_to_yaml)
         Randypot::Cache.put(@key, response).should == response

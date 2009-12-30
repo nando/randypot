@@ -14,7 +14,7 @@ class Randypot
 
       def put(key, object)
         Dir.mkdir(cache_dir) unless File.directory?(cache_dir)
-        File.open(filepath(key), 'w').write(object.to_yaml)
+        File.open(filepath(key), 'w') {|f| f.write(object.to_yaml)}
         object
       end
 
