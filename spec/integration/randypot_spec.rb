@@ -76,6 +76,17 @@ describe Randypot do
           :content => 'http://example.com/foo.html',
           :member_b => 'randy@example.com')
     end
+    it '.relationship' do
+      @res = Randypot.relationship(
+          :member => 'friend@example.com',
+          :category => 'default',
+          :member_b => 'randy@example.com')
+    end
+    it '.relationship.default' do
+      @res = Randypot.relationship.default(
+          :member => 'friend@example.com',
+          :member_b => 'randy@example.com')
+    end
   end
   it '.members' do
     Randypot.members.status.should be(200)
