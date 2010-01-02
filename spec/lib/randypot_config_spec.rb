@@ -1,4 +1,4 @@
-ENV['RAILS_ROOT'] = '/home/rails'
+RAILS_ROOT = '/home/rails'
 require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper'))
 
 describe Randypot::Config do
@@ -9,7 +9,7 @@ describe Randypot::Config do
   }
   YAMLS = {
     :current_directory => 'randypot.yml',
-    :rails_directory => ENV['RAILS_ROOT'] + '/config/randypot.yml',
+    :rails_directory => RAILS_ROOT + '/config/randypot.yml',
     :home_directory => '~/.randypot/configuration.yml',
     :etc_directory => '/etc/randypot/configuration.yml'
   }.inject({}) {|h, kv| h.merge(kv[0] => File.expand_path(kv[1]))}
