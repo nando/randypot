@@ -46,6 +46,12 @@ describe Randypot::MagicParams do
     end.foo.bar.the.car(:e => 'tachaaan!!!')
   end
 
+  it 'should use param as last key value if params is not a hash' do
+    Randypot::MagicParams.abracadabra([:a, :b, :c, :d, :e]) do |params|
+      params.should == {:a => 'foo', :b => 'bar', :c => 'the', :d => 'car', :e => 'tachaaan!!!'}
+    end.foo.bar.the.car('tachaaan!!!')
+  end
+
   it 'should let us override our own magic with the passed hash' do
     # Not very useful, but IMO better than the opposite
     Randypot::MagicParams.abracadabra([:a, :b, :c, :d]) do |params|

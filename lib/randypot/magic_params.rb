@@ -17,6 +17,9 @@ class Randypot
       def method_missing(method, *args, &block)
         magic_param = {@keys.shift => method.to_s}
         if (params = args.first) or @keys.empty?
+          unless params.is_a?(Hash)
+            params = (@keys.any? ? {@keys.shift => params} : {})
+          end
           @block.call magic_param.merge(params||{})
         else
           MagicParams.new(@keys) do |coming_back_params|
