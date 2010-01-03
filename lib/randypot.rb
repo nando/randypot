@@ -10,8 +10,16 @@ require 'randypot/params_transformer'
 require 'randypot/cache'
 
 class Randypot
-  def initialize(config_file = nil, &block)
-    Randypot.configure config_file, &block
+  attr_accessor :member
+
+  def initialize(params = nil, &block)
+    options = if params.is_a?(Hash)
+      params
+    else
+      {:member => params}
+    end
+    Randypot.configure(options[:config], &block) if options[:config] or block_given?
+    @member = options[:member]
   end
 
   class << self

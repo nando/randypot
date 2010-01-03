@@ -37,7 +37,7 @@ describe Randypot do
       
       it 'should use the given YAML' do
         Randypot.config.should_receive(:configure).with('myconf.yml')
-        Randypot.new 'myconf.yml'
+        Randypot.configure 'myconf.yml'
       end
     end
 
@@ -49,11 +49,30 @@ describe Randypot do
         end
       end
     
-      it 'should use the given YAML' do
+      it 'should configure using the YAML passed in :config' do
         Randypot.config.should_receive(:configure).with('myconf.yml')
-        Randypot.new 'myconf.yml'
+        Randypot.new :config => 'myconf.yml'
       end
-   end
+
+      it 'should keep the param value as member' do
+        member = 'member@example.com'
+        Randypot.new(member).member.should == member
+      end
+
+      it 'should keep member and configure with a given block' do
+        member = 'randy@example.com'
+        Randypot.config.should_receive(:foo).with(:bar)
+        Randypot.new(member) do |c|
+          c.foo :bar
+        end.member.should == member
+      end
+
+      it 'should keep member and configure through a YAML' do
+        member = 'randy@example.com'
+        Randypot.config.should_receive(:configure).with('myconf.yml')
+        Randypot.new(:member => member, :config => 'myconf.yml').member.should == member
+      end
+    end
   end
 
   describe 'new activity' do
@@ -190,6 +209,11 @@ describe Randypot do
     it 'should request members_url and do not cache response if cache is valid' do
       @response.should_receive(:not_modified?).and_return(true)
       Randypot::Cache.should_not_receive(:put)
+    end
+  end
+
+  describe '#creates' do
+    it 'should ' do
     end
   end
 end
