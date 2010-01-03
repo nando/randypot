@@ -29,6 +29,11 @@ class Randypot
       [:content_type, :content_source, :content], :member => member
   end
 
+  def reacts(params = nil)
+    Randypot.activity 'reaction', params,
+      [:category, :content_type, :content_source, :content], :member => member
+  end
+
   class << self
     def config
       @config ||= Config.new

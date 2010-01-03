@@ -117,7 +117,7 @@ describe Randypot do
           :member => 'randy@example.com',
           :content_type => 'wadus',
           :content_source => 'ugc',
-          :content => 'http://example.com/wadus.png'
+          :content => 'http://example.com'
         }
         set_expectations_for 'creation', @base_params
       end
@@ -145,12 +145,12 @@ describe Randypot do
 
       it "should use nested methods and instance's member" do
         randy = Randypot.new('randy@example.com')
-        randy.creates.wadus.ugc :content => 'http://example.com/wadus.png' 
+        randy.creates.wadus.ugc :content => 'http://example.com' 
       end
 
       it "should use param as value of :content if it's not a Hash" do
         randy = Randypot.new('randy@example.com')
-        randy.creates.wadus.ugc 'http://example.com/wadus.png' 
+        randy.creates.wadus.ugc 'http://example.com' 
       end
     end
 
@@ -160,7 +160,7 @@ describe Randypot do
           :category => 'comment',
           :content_type => 'wadus',
           :content_source => 'ugc',
-          :content => 'http://example.com/wadus.png'
+          :content => 'http://example.com'
         }
         set_expectations_for 'reaction', @base_params
       end
@@ -188,6 +188,57 @@ describe Randypot do
       end
     end
   
+    describe '#reacts' do
+      before do
+        @base_params = {
+          :member => 'randy@example.com',
+          :category => 'comment',
+          :content_type => 'wadus',
+          :content_source => 'ugc',
+          :content => 'http://example.com'
+        }
+        set_expectations_for 'reaction', @base_params
+      end
+
+      it "should use params' member if present" do
+        randy = Randypot.new('this-will-be-overridden@example.com')
+        randy.reacts(@base_params)
+      end
+
+      it "should use instance's member" do
+        randy = Randypot.new('randy@example.com')
+        randy.reacts(@base_params.reject{|k,v| k == :member})
+      end
+
+      it "should use its first nested method as category" do
+        Randypot.new.reacts.comment(@base_params.reject{|k,v| k == :category})
+      end
+
+      it "should use its second nested method as content_type" do
+        params = @base_params.reject do |key, v|
+          [:content_type, :category].include? key
+        end
+        Randypot.new.reacts.comment.wadus params
+      end
+
+      it "should use its third nested method as content_source" do
+        params = @base_params.reject do |key, v|
+          [:category, :content_type, :content_source].include? key
+        end
+        Randypot.new.reacts.comment.wadus.ugc params
+      end
+
+      it "should use nested methods and instance's member" do
+        randy = Randypot.new('randy@example.com')
+        randy.reacts.comment.wadus.ugc :content => 'http://example.com' 
+      end
+
+      it "should use param as value of :content if it's not a Hash" do
+        randy = Randypot.new('randy@example.com')
+        randy.reacts.comment.wadus.ugc 'http://example.com' 
+      end
+    end
+
     describe '.relationship' do
       before do
         @base_params =  {
