@@ -4,7 +4,7 @@ class Randypot
   class Config
     CONFIG_YAMLS = [ # IN ORDER OF RELEVANCE
       'randypot.yml',
-      "#{RAILS_ROOT}/config/randypot.yml",
+      "#{defined?(RAILS_ROOT) ? RAILS_ROOT : '.'}/config/randypot.yml",
       '~/.randypot/configuration.yml',
       '/etc/randypot/configuration.yml'
     ].reverse.map {|f| File.expand_path(f)}
