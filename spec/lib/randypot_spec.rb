@@ -77,7 +77,6 @@ describe Randypot do
 
   describe 'new activity' do
     def set_expectations_for(activity_type, base_params)
-      @base_params = base_params
       conn, now, transformed_params = mock('Connection'), Time.now, {}
       Time.stub!(:now).and_return(now)
       Randypot.should_receive(:connection).and_return(conn)
@@ -91,11 +90,12 @@ describe Randypot do
 
     describe '.creation' do
       before do
-        set_expectations_for 'creation', {
+        @base_params = {
           :content_type => 'wadus',
           :content_source => 'ugc',
           :content => 'http://example.com/wadus.png'
         }
+        set_expectations_for 'creation', @base_params
       end
   
       it 'should create from passed params' do
@@ -111,14 +111,58 @@ describe Randypot do
       end
     end
   
+    describe '#creates' do
+      before do
+        @base_params = {
+          :member => 'randy@example.com',
+          :content_type => 'wadus',
+          :content_source => 'ugc',
+          :content => 'http://example.com/wadus.png'
+        }
+        set_expectations_for 'creation', @base_params
+      end
+
+      it "should use params' member if present" do
+        randy = Randypot.new('this-will-be-overridden@example.com')
+        randy.creates(@base_params)
+      end
+
+      it "should use instance's member" do
+        randy = Randypot.new('randy@example.com')
+        randy.creates(@base_params.reject{|k,v| k == :member})
+      end
+
+      it "should use its first nested method as content_type" do
+        Randypot.new.creates.wadus(@base_params.reject{|k,v| k == :content_type})
+      end
+
+      it "should use its second nested method as content_source" do
+        params = @base_params.reject do |key, v|
+          [:content_type, :content_source].include? key
+        end
+        Randypot.new.creates.wadus.ugc params
+      end
+
+      it "should use nested methods and instance's member" do
+        randy = Randypot.new('randy@example.com')
+        randy.creates.wadus.ugc :content => 'http://example.com/wadus.png' 
+      end
+
+      it "should use param as value of :content if it's not a Hash" do
+        randy = Randypot.new('randy@example.com')
+        randy.creates.wadus.ugc 'http://example.com/wadus.png' 
+      end
+    end
+
     describe '.reaction' do
       before do
-        set_expectations_for 'reaction', {
+        @base_params = {
           :category => 'comment',
           :content_type => 'wadus',
           :content_source => 'ugc',
           :content => 'http://example.com/wadus.png'
         }
+        set_expectations_for 'reaction', @base_params
       end
   
       it 'should create from passed params' do
@@ -146,10 +190,11 @@ describe Randypot do
   
     describe '.relationship' do
       before do
-        set_expectations_for 'relationship', {
+        @base_params =  {
           :category => 'love',
           :member_b => 'example@example.org'
         }
+        set_expectations_for 'relationship', @base_params
       end
   
       it 'should create from passed params' do
@@ -212,8 +257,4 @@ describe Randypot do
     end
   end
 
-  describe '#creates' do
-    it 'should ' do
-    end
-  end
 end

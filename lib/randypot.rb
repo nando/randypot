@@ -18,8 +18,15 @@ class Randypot
     else
       {:member => params}
     end
-    Randypot.configure(options[:config], &block) if options[:config] or block_given?
+    if options[:config] or block_given?
+      Randypot.configure(options[:config], &block)
+    end
     @member = options[:member]
+  end
+
+  def creates(params = nil)
+    Randypot.activity 'creation', params,
+      [:content_type, :content_source, :content], :member => member
   end
 
   class << self
@@ -48,7 +55,8 @@ class Randypot
     end
 
     def reaction(base_params = nil)
-      activity 'reaction', base_params, [:category, :content_type, :content_source]
+      activity 'reaction', base_params,
+        [:category, :content_type, :content_source]
     end
 
     def relationship(base_params = nil)
@@ -63,18 +71,19 @@ class Randypot
       cached_request member_url(id)
     end
  
-    private
+    def activity(type, explicit_params, magic_keys, params ={})
+      MagicParams.abracadabra(magic_keys, explicit_params) do |magic_params|
+        params[:activity_type] = type
+        params[:activity_at] = Time.now
+        connection.post activities_url,
+          ParamsTransformer.transform(params.merge(magic_params))
+      end
+    end
+
+    protected
     def connection
       @connection ||= Connection.new(
         config.service_url, config.app_key, config.app_token)
-    end
-
-    def activity(type, base_params, magic_keys)
-      MagicParams.abracadabra(magic_keys, base_params) do |params|
-        params[:activity_type] = type
-        params[:activity_at] = Time.now
-        connection.post activities_url, ParamsTransformer.transform(params)
-      end
     end
 
     def cached_request(url)
