@@ -128,7 +128,7 @@ describe Randypot do
       end
 
       it "should use instance's member" do
-        randy = Randypot.new('randy@example.com')
+        randy = Randypot.new(@base_params[:member])
         randy.creates(@base_params.reject{|k,v| k == :member})
       end
 
@@ -144,12 +144,12 @@ describe Randypot do
       end
 
       it "should use nested methods and instance's member" do
-        randy = Randypot.new('randy@example.com')
+        randy = Randypot.new(@base_params[:member])
         randy.creates.wadus.ugc :content => 'http://example.com' 
       end
 
       it "should use param as value of :content if it's not a Hash" do
-        randy = Randypot.new('randy@example.com')
+        randy = Randypot.new(@base_params[:member])
         randy.creates.wadus.ugc 'http://example.com' 
       end
     end
@@ -206,7 +206,7 @@ describe Randypot do
       end
 
       it "should use instance's member" do
-        randy = Randypot.new('randy@example.com')
+        randy = Randypot.new(@base_params[:member])
         randy.reacts(@base_params.reject{|k,v| k == :member})
       end
 
@@ -229,12 +229,12 @@ describe Randypot do
       end
 
       it "should use nested methods and instance's member" do
-        randy = Randypot.new('randy@example.com')
+        randy = Randypot.new(@base_params[:member])
         randy.reacts.comment.wadus.ugc :content => 'http://example.com' 
       end
 
       it "should use param as value of :content if it's not a Hash" do
-        randy = Randypot.new('randy@example.com')
+        randy = Randypot.new(@base_params[:member])
         randy.reacts.comment.wadus.ugc 'http://example.com' 
       end
     end
@@ -254,6 +254,37 @@ describe Randypot do
   
       it 'should pass its first nested method as :category' do
         Randypot.relationship.love(:member_b => @base_params[:member_b])
+      end
+    end
+
+    describe '#relationships' do
+      before do
+        @base_params =  {
+          :member => 'randy@example.com',
+          :category => 'love',
+          :member_b => 'example@example.org'
+        }
+        set_expectations_for 'relationship', @base_params
+      end
+  
+      it 'should create from passed params' do
+        randy = Randypot.new('this-will-be-overridden@example.com')
+        randy.relationships @base_params
+      end
+
+      it "should use instance's member" do
+        randy = Randypot.new(@base_params[:member])
+        randy.relationships(@base_params.reject{|k,v| k == :member})
+      end
+  
+      it 'should pass its first nested method as :category' do
+        randy = Randypot.new(@base_params[:member])
+        randy.relationships.love(:member_b => @base_params[:member_b])
+      end
+
+      it "should use param as value of :member_b if it's not a Hash" do
+        randy = Randypot.new(@base_params[:member])
+        randy.relationships.love @base_params[:member_b]
       end
     end
   end

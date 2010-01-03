@@ -34,6 +34,11 @@ class Randypot
       [:category, :content_type, :content_source, :content], :member => member
   end
 
+  def relationships(params = nil)
+    Randypot.activity 'relationship', params,
+      [:category, :member_b], :member => member
+  end
+
   class << self
     def config
       @config ||= Config.new
