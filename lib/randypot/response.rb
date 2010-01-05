@@ -11,5 +11,9 @@ class Randypot
     def not_modified?
       status == 304
     end
+
+    def success?
+      (200..201).include? status
+    end
   end
 end

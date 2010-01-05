@@ -17,6 +17,20 @@ describe Randypot::Response do
     @response.etag.should == @params[:etag]
   end
 
+  describe '#success?' do
+    it 'should return true if status is 200' do
+      @response.success?.should be_true
+    end
+
+    it 'should return true if status is 201' do
+      Randypot::Response.new(:status => 201).success?.should be_true
+    end
+
+    it 'should return false if status is not 20x' do
+      Randypot::Response.new(:status => 400).success?.should be_false
+    end
+  end
+
   describe '#not_modified?' do
     it 'should return false if status is not 304' do
       @response.not_modified?.should be_false
