@@ -1,25 +1,28 @@
 == Randypot ==
   Randypot is a Ruby client for Kandypot (the sweetest karma service ever deployed)
 
-== Randypot wannabe tour ==
+  This is a brief introduction to its usage. You can see specs/lib/randypot_spec.rb for more details.
 
-  Configuration is a good way to start the tour. It can be set in a YAML with a content like this:
+== Randypot configuration ==
+
+  Configuration can be set through a YAML with a content like this:
   
     kandypot_server:
       service_url: http://kandypot.com/api
       app_key: putyourappkeyhere
       app_token: andhereputthetoken
 
-  Randypot will look for this YAML in all of this files:
+  Randypot will load it from these files if they are present (settings from each file overrides those loaded from the previous one):
     1.- /etc/randypot/configuration.yml,
-    2.- ~/.randypot/configuration.yml (will override any setting loaded by /etc/randypot YAML),
-    3.- randypot.yml (in the current directory, will override any setting loaded by previous YAMLs).
+    2.- ~/.randypot/configuration.yml
+    3.- RAILS_ROOT/config/randypot.yml
+    4.- randypot.yml
 
-  Also we can pass to Randypot the location of the configuration file the doing something like this:
+  Also we can pass to Randypot the location of the configuration file doing something like this:
 
     Randypot.configure '/my/special/place.yml'
 
-  This will override any setting of the automagically loaded YAMLs.
+  This will override any setting loaded from previous YAMLs.
 
   If we don't want to have it in a YAML we can also do the same with:
 
@@ -29,37 +32,65 @@
       config.app_token   = "andhereputthetoken"
     end
 
-  Again, this settings will be used spite of setting loaded from any YAML file.
+  Again, this settings will be used spite of settings loaded from any YAML file.
 
-  Once the configuration is set we can make calls like this to the service (option one):
+== Randypot content creations ==
+  Once the configuration is set we can make calls like this to the service (option one: with the class method):
+
+    Randypot.creation(
+      :content_type => 'photo',
+      :content_source => 'ugc',
+      :activity_at => Time.now,
+      :member => 'wadus@example.com',
+      :content => 'http://example.com/wadus.jpg')
+
+  But we also can do the same this way:
 
     Randypot.creation.photo.ugc(
       :member => 'wadus@example.com',
-      :permalink => 'http://example.com/wadus.jpg'
+      :content => 'http://example.com/wadus.jpg'
     )
 
-  But also we can get an instance for a member (option two):
-
-    randy = Randypot.new(:ugc => true, :member => 'randy@example.com')
-  
-  To do just the same but like this:
-
-    randy.creates.photo 'http://example.com/wadus.jpg'
-
-  Or we can create an instance of 'randy' passing only his email (option three):
+  But also we can get an instance for a member (option two: with the instance method):
 
     randy = Randypot.new('randy@example.com')
-
-  And again do just the same with this even more fancy syntax:
+  
+  And do just the same with this even more fancy syntax:
 
     randy.creates.photo.ugc 'http://example.com/wadus.jpg'
 
-== Comming soon: reactions ==
+== Randypot content reactions ==
+  Again we got the two options. With the class method:
 
-    #  - if :creator key is not present then content_source will be "editorial"
-    randy.reacts.favourite(:permalink => 'http://example.com/sitepage')
-    #  - otherwise content_source will be "ugc"
-    randy.reacts.comment(
-      :creator   => 'wadus@example.com',
-      :permalink => 'http://example.com/waduspage')
-      
+    Randypot.reaction.comment.photo.ugc(
+      :member  => 'randy@example.com',
+      :creator => 'wadus@example.com',
+      :content => 'http://example.com/waduspage')
+  
+  Or with the instance method:
+
+    randy = Randypot.new('randy@example.com')
+    randy.reacts.comment.photo.ugc(
+      :creator => 'wadus@example.com',
+      :content => 'http://example.com/waduspage')
+
+== Randypot relationships ==
+  
+  With the class method:
+
+    Randypot.relationship.friend(
+      :member  => 'randy@example.com',
+      :member_b => 'wadus@example.com') 
+
+  Or with the instance method:
+
+    randy = Randypot.new('randy@example.com')
+    randy.relationships.friend 'wadus@example.com'
+
+== Randypot members ==
+
+  To get a CSV list with the current Randypot members and their kandypot sizes you can call:
+
+    Randypot.members
+
+  Randypot will store the results in local cache files to optimize its bandwith needs.
