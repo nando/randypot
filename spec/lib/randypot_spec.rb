@@ -83,7 +83,7 @@ describe Randypot do
       Randypot::ParamsTransformer.should_receive(:transform).with(
         base_params.merge({
         :activity_type => activity_type,
-        :activity_at => now
+        :activity_at => now.iso8601
       })).and_return(transformed_params)
       conn.should_receive(:post).with(Randypot.activities_url, transformed_params)
     end
