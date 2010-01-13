@@ -90,7 +90,7 @@ class Randypot
     def activity(type, explicit_params, magic_keys, params ={})
       MagicParams.abracadabra(magic_keys, explicit_params) do |magic_params|
         params[:activity_type] = type
-        params[:activity_at] = Time.now
+        params[:activity_at] = Time.now.iso8601
         connection.post activities_url,
           ParamsTransformer.transform(params.merge(magic_params))
       end
