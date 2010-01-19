@@ -40,4 +40,11 @@ describe Randypot::Response do
       Randypot::Response.new(:status => 304).not_modified?.should be_true
     end
   end
+
+  describe '#parsed' do
+    it 'should return the value returned by the parse block' do
+      @response.parse {|body| body.length.to_s }
+      @response.parsed.should == @response.body.length.to_s
+    end
+  end
 end

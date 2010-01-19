@@ -1,11 +1,15 @@
 class Randypot
   class Response
-    attr_reader :status, :content_type, :body, :etag
+    attr_reader :status, :content_type, :body, :etag, :parsed
     def initialize(params)
       @status = params[:status]
       @content_type = params[:content_type]
       @body = params[:body]
       @etag = params[:etag]
+    end
+
+    def parse(&block)
+      @parsed = yield(@body)
     end
 
     def not_modified?
