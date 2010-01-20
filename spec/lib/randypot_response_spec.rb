@@ -41,8 +41,16 @@ describe Randypot::Response do
     end
   end
 
+  describe '#parse' do
+    it 'should yield passing the body as param' do
+      @response.parse do |thing|
+        thing.should == @response.body
+      end
+    end
+  end
+
   describe '#parsed' do
-    it 'should return the value returned by the parse block' do
+    it 'should keep the value returned by the #parse block' do
       @response.parse {|body| body.length.to_s }
       @response.parsed.should == @response.body.length.to_s
     end
