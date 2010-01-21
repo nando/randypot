@@ -74,7 +74,15 @@ class Randypot
     end
 
     def members
-      cached_request members_url
+      cached_request(members_url) do |response|
+        response.parse do |body|
+          body.split("\n").map do |line|
+            hash, candies, updated_at = line.split(',')
+            Struct.new(:hash, :candies, :updated_at).new(
+              hash, candies.to_i, Time.parse(updated_at))
+          end
+        end
+      end
     end
  
     def member(id)
@@ -96,12 +104,13 @@ class Randypot
       end
     end
 
-    def cached_request(url)
+    def cached_request(url, &block)
       cache = Randypot::Cache.get(url)
       response = connection.get(url, cache)
       if response.not_modified?
         cache
       else
+        yield response if block_given?
         Randypot::Cache.put(url, response)
       end
     end

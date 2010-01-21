@@ -291,7 +291,12 @@ describe Randypot do
 
   describe '.members' do
     before do
-      @response = mock('response', :status => 200)
+      @response = Randypot::Response.new(:status => 200, :body => <<MEMBERS_BODY)
+0318254ce7c576c583e8a63558e7f98877e6ec49,12,2009-08-03 20:46:40 UTC
+059fc5c60729cad3bfe07e1a5edaa51104c14518,12,2009-08-03 20:46:40 UTC
+0699d11f05594b85c6004ebba26712a5f9940090,12,2009-08-03 20:46:40 UTC
+0f4d89c1a93ea1b314ec6cad9a07cb743e41953c,13,2009-08-03 20:46:40 UTC
+MEMBERS_BODY
       cache, conn = mock('cache', :status => 200), mock('connection')
       Randypot::Cache.should_receive(:get).with(Randypot.members_url).and_return(cache)
       Randypot.should_receive(:connection).and_return(conn)
@@ -299,17 +304,24 @@ describe Randypot do
     end
 
     after do
-      Randypot.members.status.should be(200)
+      @members.status.should be(200)
     end
 
-    it 'should request members_url and cache response if response is new' do
-      @response.should_receive(:not_modified?).and_return(false)
+    it 'should request members_url and store in cache cache the parsed response (if response is new)' do
+      @response.should_receive(:not_modified?).and_return(false) # new response
       Randypot::Cache.should_receive(:put).with(Randypot.members_url, @response).and_return(@response)
+      @members = Randypot.members
+      @members.parsed.size.should == 4
+      first = @members.parsed.first
+      first.hash.should == '0318254ce7c576c583e8a63558e7f98877e6ec49'
+      first.candies.should == 12
+      first.updated_at.should == Time.parse('2009-08-03 20:46:40 UTC')
     end
 
     it 'should request members_url and do not cache response if cache is valid' do
       @response.should_receive(:not_modified?).and_return(true)
       Randypot::Cache.should_not_receive(:put)
+      @members = Randypot.members
     end
   end
 
