@@ -88,7 +88,11 @@ class Randypot
     def member(id)
       cached_request member_url(id)
     end
- 
+
+    def hash_for(str)
+      ParamsTransformer.hash_for str
+    end
+
     private
     def connection
       @connection ||= Connection.new(

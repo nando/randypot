@@ -351,4 +351,11 @@ MEMBERS_BODY
     end
   end
 
+  describe '.hash_for' do
+    it 'should be a wrapper of ParamsTransformer.hash_for' do
+      str, hash = 'foo', 'bar'
+      Randypot::ParamsTransformer.should_receive(:hash_for).with(str).and_return(hash)
+      Randypot.hash_for(str).should == hash
+    end
+  end
 end
