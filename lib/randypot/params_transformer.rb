@@ -19,6 +19,10 @@ class Randypot
         end
       end
 
+      def hash_for(str)
+        Digest::MD5.hexdigest(str)
+      end
+
       private
 
       def translate_key_and_value(key, value)
