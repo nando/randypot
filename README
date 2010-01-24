@@ -1,7 +1,7 @@
 == Randypot ==
   Randypot is a Ruby client for Kandypot (the sweetest karma service ever deployed)
 
-  This is a brief introduction to its usage. You can see specs/lib/randypot_spec.rb for more details.
+  This is an introduction about how to use it. You can see specs/lib/randypot_spec.rb for more details.
 
 == Randypot configuration ==
 
@@ -93,4 +93,13 @@
 
     Randypot.members
 
-  Randypot will store the results in local cache files to optimize its bandwith needs.
+  Randypot will store the results in local cache files to optimize its bandwith needs, avoiding data transfers if Kandypot confirms that no modification has been made since the last request.
+
+  Randypot will also parse the CVS response storing the result within the #parsed accessor of the response (Randypot.members.parsed).
+  
+  The parsed members is an array of Struct objects that responds to #hash, #candies, #updated_at and so on. To list each member with its candies we can do something like this:
+
+    Randypot.members.parsed.each do |member|
+      puts User.find_by_hash(member.hash).name + ': ' + member.candies
+    end
+
