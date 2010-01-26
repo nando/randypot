@@ -303,16 +303,12 @@ MEMBERS_BODY
       conn.should_receive(:get).with(Randypot.members_url, cache).and_return(@response)
     end
 
-    after do
-      @members.status.should be(200)
-    end
-
-    it 'should request members_url and store in cache cache the parsed response (if response is new)' do
+    it 'should request members_url and store in cache cache the parsed response (if response is new and good)' do
       @response.should_receive(:not_modified?).and_return(false) # new response
       Randypot::Cache.should_receive(:put).with(Randypot.members_url, @response).and_return(@response)
-      @members = Randypot.members
-      @members.parsed.size.should == 4
-      first = @members.parsed.first
+      members = Randypot.members
+      members.parsed.size.should == 4
+      first = members.parsed.first
       first.hash.should == '0318254ce7c576c583e8a63558e7f98877e6ec49'
       first.candies.should == 12
       first.updated_at.should == Time.parse('2009-08-03 20:46:40 UTC')
@@ -321,7 +317,14 @@ MEMBERS_BODY
     it 'should request members_url and do not cache response if cache is valid' do
       @response.should_receive(:not_modified?).and_return(true)
       Randypot::Cache.should_not_receive(:put)
-      @members = Randypot.members
+      Randypot.members
+    end
+
+    it 'should not cache the response if is not valid' do
+      @response.should_receive(:not_modified?).and_return(false)
+      @response.should_receive(:success?).twice.and_return(false)
+      Randypot::Cache.should_not_receive(:put)
+      Randypot.members
     end
   end
 
@@ -340,8 +343,9 @@ MEMBERS_BODY
       Randypot.member @email
     end
 
-    it 'should request members_url and cache response if no cache is present' do
+    it 'should request members_url and cache response if response is good and no cache is present' do
       @response.should_receive(:not_modified?).and_return(false)
+      @response.should_receive(:success?).and_return(true)
       Randypot::Cache.should_receive(:put).with(@url, @response)
     end
 
