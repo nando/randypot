@@ -8,13 +8,13 @@ class Randypot
     class << self
       def get(key)
         if File.file?(file = filepath(key))
-          YAML.load_file file
+          Marshal.load(File.open(file).read)
         end
       end
 
       def put(key, object)
         Dir.mkdir(cache_dir) unless File.directory?(cache_dir)
-        File.open(filepath(key), 'w') {|f| f.write(object.to_yaml)}
+        File.open(filepath(key), 'w') {|f| f.write(Marshal.dump(object))}
         object
       end
 

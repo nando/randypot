@@ -1,12 +1,14 @@
 $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) ||
   $:.include?(File.expand_path(File.dirname(__FILE__)))
+
 require 'randypot/version'
 require 'randypot/config'
 require 'randypot/response'
 require 'randypot/connection'
 require 'randypot/magic_params'
 require 'randypot/params_transformer'
+require 'randypot/parsed_member'
 require 'randypot/cache'
 
 class Randypot
@@ -79,8 +81,7 @@ class Randypot
           response.parse do |body|
             body.split("\n").map do |line|
               hash, candies, updated_at = line.split(',')
-              Struct.new(:hash, :candies, :updated_at).new(
-                hash, candies.to_i, Time.parse(updated_at))
+              ParsedMember.new(hash, candies.to_i, Time.parse(updated_at))
             end
           end
         end
@@ -117,7 +118,11 @@ class Randypot
         cache
       else
         yield response if block_given?
-        Randypot::Cache.put(url, response) if response.success?
+        if response.success?
+          Randypot::Cache.put(url, response)
+        else
+          response
+        end
       end
     end
   end
