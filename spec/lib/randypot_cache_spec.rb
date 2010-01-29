@@ -14,9 +14,10 @@ describe Randypot::Cache do
     end
 
     it '.get should return Response if cache file does exist' do
-      response = mock('response')
+      response, file = mock('response'), mock('cache-file', :read => 'foo')
       File.should_receive(:file?).with(@filepath).and_return(true)
-      YAML.should_receive(:load_file).with(@filepath).and_return(response)
+      File.should_receive(:open).with(@filepath).and_return(file)
+      Marshal.should_receive(:load).with('foo').and_return(response)
       Randypot::Cache.get(@key).should == response
     end
     
@@ -24,10 +25,10 @@ describe Randypot::Cache do
       it 'should create randypots tmp directory if it does not exists and return stored response' do
         File.should_receive(:directory?).with(@dirpath).and_return(false)
         Dir.should_receive(:mkdir).with(@dirpath)
-        file, response, res_to_yaml = mock('file'), mock('response'), mock('res_to_yaml')
+        file, response, dumped_res = mock('file'), mock('response'), mock('dumped_res')
         File.should_receive(:open).with(@filepath, 'w').and_yield(file)
-        response.should_receive(:to_yaml).and_return(res_to_yaml)
-        file.should_receive(:write).with(res_to_yaml)
+        Marshal.should_receive(:dump).with(response).and_return(dumped_res)
+        file.should_receive(:write).with(dumped_res)
         Randypot::Cache.put(@key, response).should == response
       end
     end
