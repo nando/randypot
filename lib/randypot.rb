@@ -43,6 +43,18 @@ class Randypot
       [:category, :member_b], :member => member
   end
 
+  def hash
+    member_data.hash
+  end
+
+  def candies
+    member_data.candies
+  end
+
+  def updated_at
+    member_data.updated_at
+  end
+
   class << self
     def config
       @config ||= Config.new
@@ -127,6 +139,15 @@ class Randypot
       else
         response
       end
+    end
+  end
+
+  private
+  def member_data
+    if @member
+      @member_data ||= Randypot.member(@member).parsed
+    else
+      raise 'No member email given'
     end
   end
 end

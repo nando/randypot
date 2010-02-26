@@ -109,15 +109,25 @@
 
   To get the current data of a member in JSON format you can call the class method "member" with her or his email as argument. As with Randypot.members, you'll get an Randypot::Responce instance:
 
-    randys_json = Randypot.member("randy@example.com").body
+    json = Randypot.member("randy@example.com").body
 
   Randypot'll store the user's data in a local cache file to use it if Kandypot comfirms no modifications on it.
 
   Randypot'll parse the JSON data for us and it'll be accesible through the #hash, #candies, #updated_at:
 
-    randy = Randypot.member("email@example.com").parsed
+    parsed = Randypot.member("email@example.com").parsed
+
+    puts "Randy's hash: " + parsed.hash
+    puts "Randy's candies: " + parsed.candies.to_s
+    puts "Randy's last update: " + parsed.updated_at.format('long')
+
+  But here the second option, the instance option, comes again. The cool way to do this is with an instance of Randypot:
+
+    randy = Randypot.new("email@example.com")
+
+  This instance has the #hash, #candies, #updated_at methods just the same as the object returned by #parsed method of the Randypot's member class method. So we can equally do with "randy" what we've done with "parsed": 
+
     puts "Randy's hash: " + randy.hash
     puts "Randy's candies: " + randy.candies.to_s
     puts "Randy's last update: " + randy.updated_at.format('long')
-
 
