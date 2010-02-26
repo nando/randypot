@@ -322,7 +322,7 @@ MEMBERS_BODY
 
     it 'should not cache the response if is not valid' do
       @response.should_receive(:not_modified?).and_return(false)
-      @response.should_receive(:success?).twice.and_return(false)
+      @response.should_receive(:success?).and_return(false)
       Randypot::Cache.should_not_receive(:put)
       Randypot.members
     end
@@ -330,7 +330,9 @@ MEMBERS_BODY
 
   describe '.member' do
     before do
-      @response = mock('response')
+      @response = Randypot::Response.new(:status => 200, :body => <<MEMBER_BODY)
+{"member_token":"422ef9125be6bf8a733fba46e0d02892","updated_at":"2010-02-01T19:52:56Z","kandies_count":31}
+MEMBER_BODY
       cache, conn = mock('cache'), mock('connection')
       @email = 'member@example.com'
       @url = Randypot.member_url(@email)
@@ -339,19 +341,18 @@ MEMBERS_BODY
       conn.should_receive(:get).with(@url, cache).and_return(@response)
     end
 
-    after do
-      Randypot.member @email
-    end
-
     it 'should request members_url and cache response if response is good and no cache is present' do
       @response.should_receive(:not_modified?).and_return(false)
       @response.should_receive(:success?).and_return(true)
-      Randypot::Cache.should_receive(:put).with(@url, @response)
+      Randypot::Cache.should_receive(:put).with(@url, @response).and_return(@response)
+      member = Randypot.member(@email)
+      member.parsed.candies.should == 31
     end
 
     it 'should request members_url and do not cache response if cache is valid' do
       @response.should_receive(:not_modified?).and_return(true)
       Randypot::Cache.should_not_receive(:put)
+      Randypot.member(@email)
     end
   end
 

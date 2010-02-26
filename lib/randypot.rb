@@ -11,6 +11,8 @@ require 'randypot/params_transformer'
 require 'randypot/parsed_member'
 require 'randypot/cache'
 
+require 'json'
+
 class Randypot
   attr_accessor :member
 
@@ -77,19 +79,22 @@ class Randypot
 
     def members
       cached_request(members_url) do |response|
-        if response.success?
-          response.parse do |body|
-            body.split("\n").map do |line|
-              hash, candies, updated_at = line.split(',')
-              ParsedMember.new(hash, candies.to_i, Time.parse(updated_at))
-            end
+        response.parse do |body|
+          body.split("\n").map do |line|
+            hash, candies, updated_at = line.split(',')
+            ParsedMember.new(hash, candies.to_i, Time.parse(updated_at))
           end
         end
       end
     end
  
     def member(id)
-      cached_request member_url(id)
+      cached_request(member_url(id)) do |response|
+        response.parse do |body|
+          h = JSON.parse(body)
+          ParsedMember.new(h['member_token'], h['kandies_count'], Time.parse(h['updated_at']))
+        end
+      end
     end
 
     def hash_for(str)
@@ -116,13 +121,11 @@ class Randypot
       response = connection.get(url, cache)
       if response.not_modified?
         cache
-      else
+      elsif response.success?
         yield response if block_given?
-        if response.success?
-          Randypot::Cache.put(url, response)
-        else
-          response
-        end
+        Randypot::Cache.put(url, response)
+      else
+        response
       end
     end
   end

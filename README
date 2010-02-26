@@ -91,15 +91,33 @@
 
   To get a CSV list with the current Randypot members and their kandypot sizes you can call:
 
-    Randypot.members
+    ranking = Randypot.members
 
-  Randypot will store the results in local cache files to optimize its bandwith needs, avoiding data transfers if Kandypot confirms that no modification has been made since the last request.
+  You'll obtain an raw Randypot::Response instance and the CVS list will be accesible through its "body" method (ranking.body).
 
-  Randypot will also parse the CVS response storing the result within the #parsed accessor of the response (Randypot.members.parsed).
+  Randypot'll store the results in local cache files to optimize its bandwith needs, avoiding data transfers if Kandypot confirms that no modification has been made since the last request.
+
+  Randypot'll also parse the CVS response storing the result within the #parsed accessor of the response (Randypot.members.parsed).
   
   The parsed members is an array of Struct objects that responds to #hash, #candies, #updated_at and so on. To list each member with its candies we can do something like this:
 
     Randypot.members.parsed.each do |member|
       puts User.find_by_hash(member.hash).name + ': ' + member.candies
     end
+
+== Randypot member ==
+
+  To get the current data of a member in JSON format you can call the class method "member" with her or his email as argument. As with Randypot.members, you'll get an Randypot::Responce instance:
+
+    randys_json = Randypot.member("randy@example.com").body
+
+  Randypot'll store the user's data in a local cache file to use it if Kandypot comfirms no modifications on it.
+
+  Randypot'll parse the JSON data for us and it'll be accesible through the #hash, #candies, #updated_at:
+
+    randy = Randypot.member("email@example.com").parsed
+    puts "Randy's hash: " + randy.hash
+    puts "Randy's candies: " + randy.candies.to_s
+    puts "Randy's last update: " + randy.updated_at.format('long')
+
 

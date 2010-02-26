@@ -27,7 +27,11 @@ class Randypot
     end
 
     def etag(headers)
-      headers['etag'] && headers['etag'].first
+      if headers['etag'] && raw = headers['etag'].first
+        # ETag quotes cleaning:
+        # "\"5d42b5fbf5aa3064d\"" => "5d42b5fbf5aa3064d"
+        raw[1..-2]
+      end
     end
   end
 end
