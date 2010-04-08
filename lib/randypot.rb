@@ -51,6 +51,8 @@ class Randypot
     member_data.candies
   end
 
+  alias kandies candies
+
   def updated_at
     member_data.updated_at
   end
