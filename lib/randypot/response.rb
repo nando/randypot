@@ -6,6 +6,7 @@ class Randypot
       @content_type = params[:content_type]
       @body = params[:body]
       @etag = params[:etag]
+      @parsed = ParsedMember.new(nil, 0, nil)
     end
 
     def parse(&block)

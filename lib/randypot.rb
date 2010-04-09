@@ -139,7 +139,6 @@ class Randypot
         yield response if block_given?
         Randypot::Cache.put(url, response)
       else
-        response.parse {|body| ParsedMember.new nil, 0, nil}
         response
       end
     end

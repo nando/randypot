@@ -355,14 +355,6 @@ MEMBER_BODY
       Randypot.member(@email)
     end
 
-    describe '.parsed' do
-      it 'should return an "empty" parsed member if response is not found' do
-        @response.should_receive(:not_modified?).and_return(false)
-        @response.should_receive(:success?).and_return(false)
-        member = Randypot.member(@email)
-        member.parsed.candies.should == 0
-      end
-    end
   end
 
   describe '.hash_for' do

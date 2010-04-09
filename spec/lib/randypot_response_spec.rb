@@ -50,6 +50,12 @@ describe Randypot::Response do
   end
 
   describe '#parsed' do
+    it 'should return an "empty" parsed member if #parse is never called' do
+      @response.parsed.hash.should == nil
+      @response.parsed.updated_at.should == nil
+      @response.parsed.candies.should == 0
+    end
+
     it 'should keep the value returned by the #parse block' do
       @response.parse {|body| body.length.to_s }
       @response.parsed.should == @response.body.length.to_s
